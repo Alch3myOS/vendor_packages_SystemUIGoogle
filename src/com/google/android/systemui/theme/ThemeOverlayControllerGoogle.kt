@@ -19,13 +19,9 @@ package com.google.android.systemui.theme
 import android.app.ActivityManager
 import android.app.UiModeManager
 import android.app.WallpaperManager
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.content.res.Resources
 import android.os.Handler
-import android.os.UserHandle
 import android.os.UserManager
 import android.util.Log
 import com.android.systemui.broadcast.BroadcastDispatcher
@@ -54,9 +50,9 @@ class ThemeOverlayControllerGoogle
 @Inject
 constructor(
     private val context: Context,
-    private val broadcastDispatcher: BroadcastDispatcher,
+    broadcastDispatcher: BroadcastDispatcher,
     @Background bgHandler: Handler,
-    @Main private val mainExecutor: Executor,
+    @Main mainExecutor: Executor,
     @Background bgExecutor: Executor,
     themeOverlayApplier: ThemeOverlayApplier,
     secureSettings: SecureSettings,
@@ -98,7 +94,6 @@ constructor(
         uiModeManagerProvider,
         activityManager,
         systemPropertiesHelper,
-        configurationController,
     ) {
     private val configurationChangedListener =
         object : ConfigurationController.ConfigurationListener {
@@ -129,16 +124,6 @@ constructor(
 
     init {
         configurationController.addCallback(configurationChangedListener)
-        broadcastDispatcher.registerReceiver(
-            object : BroadcastReceiver() {
-                override fun onReceive(context: Context, intent: Intent) {
-                    configurationChangedListener.onThemeChanged()
-                }
-            },
-            IntentFilter(ACTION_BOOTANIM_STYLE_CHANGED),
-            mainExecutor,
-            UserHandle.ALL,
-        )
         val bootColors = getBootColors()
         for ((i, color) in bootColors.withIndex()) {
             Log.d(TAG, "Boot animation colors ${i + 1}: $color")
@@ -161,7 +146,5 @@ constructor(
 
     companion object {
         private const val TAG = "ThemeOverlayController"
-        private const val ACTION_BOOTANIM_STYLE_CHANGED =
-            "org.evolution.intent.action.BOOTANIM_STYLE_CHANGED"
     }
 }
