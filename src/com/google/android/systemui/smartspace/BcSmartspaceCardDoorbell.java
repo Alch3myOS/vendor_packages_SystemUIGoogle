@@ -127,7 +127,8 @@ public class BcSmartspaceCardDoorbell extends BcSmartspaceCardGenericImage {
 
         List<Uri> imageUris =
                 target.getIconGrid().stream()
-                        .filter(action -> action.getExtras().containsKey("imageUri"))
+                        .filter(action -> action.getExtras() != null
+                                && action.getExtras().containsKey("imageUri"))
                         .map(action -> Uri.parse(action.getExtras().getString("imageUri")))
                         .collect(Collectors.toList());
 
