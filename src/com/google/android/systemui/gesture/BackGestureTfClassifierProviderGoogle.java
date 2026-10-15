@@ -69,7 +69,12 @@ public class BackGestureTfClassifierProviderGoogle extends BackGestureTfClassifi
             Log.e(TAG, "cannot predict; model not loaded");
             return -1.0f;
         }
-        mInterpreter.runForMultipleInputsOutputs(featuresVector, mOutputMap);
+        try {
+            mInterpreter.runForMultipleInputsOutputs(featuresVector, mOutputMap);
+        } catch (Exception | LinkageError e) {
+            Log.e(TAG, "cannot predict", e);
+            return -1.0f;
+        }
         return mOutput[0][0];
     }
 
@@ -100,8 +105,11 @@ public class BackGestureTfClassifierProviderGoogle extends BackGestureTfClassifi
                 );
                 mModelLoaded = true;
             }
-        } catch (Exception e) {
+        } catch (Exception | LinkageError e) {
+            // LinkageError: libtensorflowlite_jni missing or mismatched. Fall back to the
+            // regular back gesture instead of taking down SystemUI.
             Log.e(TAG, "Load TFLite file error:", e);
+            mInterpreter = null;
             mModelLoaded = false;
         } finally {
             Trace.endSection();
